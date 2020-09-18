@@ -1,42 +1,41 @@
 import { Router } from 'express';
-import { startOfHour, parseISO } from 'date-fns';
+import { parseISO } from 'date-fns';
 
-import AppointmentsRepository from '../repositories/Appointments.repo';
+import Repository from '../repositories/Appointments.repo';
+import CreateAppointment from '../services/appointments/CreateAppointment';
 
 const appointmentsRouter = Router();
 
-const appointmentsRepository = new AppointmentsRepository();
+const appointmentsRepository = new Repository();
 
+// Listagem de agendamentos
 appointmentsRouter.get('/', (request, response) => {
   const appointments = appointmentsRepository.listAll();
 
   return response.json(appointments);
 });
 
+// Criaçao de agendamentos
 appointmentsRouter.post('/', (request, response) => {
-  const { provider, date } = request.body;
+  try {
+    const { provider, date } = request.body;
 
-  const parsedDate = startOfHour(parseISO(date));
+    const parsedDate = parseISO(date);
+    const createAppointment = new CreateAppointment(appointmentsRepository);
 
-  const appointmentAlreadyBooked = appointmentsRepository.findByDate(
-    parsedDate,
-  );
+    const appointment = createAppointment.execute({
+      provider,
+      date: parsedDate,
+    });
 
-  // Verifica se já existe agendamento na data solicitada
-  if (appointmentAlreadyBooked) {
+    return response.json(appointment);
+  } catch (error) {
     return response.status(400).json({
       error: {
-        message: 'This appointment is already booked',
+        message: error.message,
       },
     });
   }
-
-  const appointment = appointmentsRepository.create({
-    provider,
-    date: parsedDate,
-  });
-
-  return response.json(appointment);
 });
 
 export default appointmentsRouter;
