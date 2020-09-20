@@ -1,6 +1,9 @@
 import 'dotenv/config';
 import express from 'express';
 
+// Banco de dados
+import './database';
+
 // Rotas da API
 import routes from './routes';
 
@@ -33,7 +36,7 @@ app.use(routes);
 try {
   app
     .listen(apiPort, () => {
-      console.log(`[INFO] Server listening at ${apiURL}:${apiPort}`);
+      console.log(`[INFO] Server is listening at ${apiURL}:${apiPort}`);
     })
     .on('error', error => {
       console.error(`[ERROR] ${error.message}`);
