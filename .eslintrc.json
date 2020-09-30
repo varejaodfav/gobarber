@@ -23,6 +23,7 @@
     "@typescript-eslint"
   ],
   "rules": {
+    "camelcase": "off",
     "import/extensions": [
       "error",
       "ignorePackages",
